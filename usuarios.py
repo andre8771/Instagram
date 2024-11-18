@@ -2,8 +2,8 @@ class Usuario:
     def __init__(self, conexion):
         self.conexion = conexion
 
-    # Crear un nuevo perfil
-    def crear_perfil(self, nombre_usuario, correo_electronico, contraseña_hash, url_imagen_perfil):
+    def crear_perfil(self, nombre_usuario, correo_electronico, contraseña_hash, url_imagen_perfil=None):
+        """Crea un nuevo perfil en la base de datos."""
         try:
             cursor = self.conexion.cursor()
             query = """
@@ -14,16 +14,19 @@ class Usuario:
             self.conexion.commit()
             print(f"Perfil '{nombre_usuario}' creado exitosamente.")
         except Exception as e:
-            print("Error al crear el perfil:", e)
+            print(f"Error al crear el perfil '{nombre_usuario}':", e)
 
-    # Ver todos los perfiles con filtros
     def ver_perfiles(self, filtro_nombre=None, ordenar_por_popularidad=False):
+        """Muestra una lista de perfiles con opción de filtro y orden."""
         try:
             cursor = self.conexion.cursor(dictionary=True)
             query = """
-            SELECT id_usuario, nombre_usuario, url_imagen_perfil,
-                   (SELECT COUNT(*) FROM seguidores WHERE id_seguido = usuarios.id_usuario) AS seguidores,
-                   (SELECT COUNT(*) FROM publicaciones WHERE id_usuario = usuarios.id_usuario) AS publicaciones
+            SELECT 
+                id_usuario, 
+                nombre_usuario, 
+                url_imagen_perfil,
+                (SELECT COUNT(*) FROM seguidores WHERE id_seguido = usuarios.id_usuario) AS seguidores,
+                (SELECT COUNT(*) FROM publicaciones WHERE id_usuario = usuarios.id_usuario) AS publicaciones
             FROM usuarios
             """
             if filtro_nombre:
@@ -34,7 +37,7 @@ class Usuario:
 
             perfiles = cursor.fetchall()
             if ordenar_por_popularidad:
-                perfiles.sort(key=lambda x: x['seguidores'], reverse=True)
+                perfiles = sorted(perfiles, key=lambda x: x['seguidores'], reverse=True)
 
             if perfiles:
                 print("\nLista de perfiles:")
@@ -46,8 +49,8 @@ class Usuario:
         except Exception as e:
             print("Error al visualizar los perfiles:", e)
 
-    # Actualizar un perfil
     def actualizar_perfil(self, id_usuario, nuevo_nombre_usuario=None, nueva_foto_perfil=None, nueva_biografia=None):
+        """Actualiza los datos de un perfil."""
         try:
             cursor = self.conexion.cursor()
             campos = []
@@ -72,23 +75,19 @@ class Usuario:
             else:
                 print("No se proporcionaron datos para actualizar.")
         except Exception as e:
-            print("Error al actualizar el perfil:", e)
+            print(f"Error al actualizar el perfil con ID {id_usuario}:", e)
 
-    # Eliminar un perfil
     def eliminar_perfil(self, id_usuario):
+        """Elimina un perfil de la base de datos."""
         try:
             cursor = self.conexion.cursor()
-            # Verificar si el perfil existe
-            query_check = "SELECT * FROM usuarios WHERE id_usuario = %s"
-            cursor.execute(query_check, (id_usuario,))
-            perfil = cursor.fetchone()
+            query = "DELETE FROM usuarios WHERE id_usuario = %s"
+            cursor.execute(query, (id_usuario,))
+            self.conexion.commit()
 
-            if perfil:
-                query = "DELETE FROM usuarios WHERE id_usuario = %s"
-                cursor.execute(query, (id_usuario,))
-                self.conexion.commit()
+            if cursor.rowcount > 0:
                 print(f"Perfil con ID {id_usuario} eliminado exitosamente.")
             else:
                 print(f"No se encontró un perfil con ID {id_usuario}.")
         except Exception as e:
-            print("Error al eliminar el perfil:", e)
+            print(f"Error al eliminar el perfil con ID {id_usuario}:", e)

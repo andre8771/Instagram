@@ -2,6 +2,7 @@ import mysql.connector
 from mysql.connector import Error
 from usuarios import Usuario  # Importamos la clase Usuario
 from seguidores import Seguir
+from publicaciones import Publicaciones
 class InstagramApp:
     def __init__(self):
         self.connection = None
@@ -116,8 +117,19 @@ class InstagramApp:
                 break
             elif opcion == '2':  # Editar perfil
                 print("Función de edición de perfil no implementada todavía.")
-            elif opcion == '3':  #publicar
-                pass
+            elif opcion == '3':  # Hacer una publicación
+                print("\n--- Crear Publicación ---")
+                url_imagen = input("URL de la imagen (opcional): ")
+                descripcion = input("Descripción: ")
+                etiquetas = input("Etiquetas (separadas por comas): ").split(',')
+
+                publicaciones = Publicaciones(self.connection)
+                publicaciones.hacer_publicacion(
+                id_usuario=self.usuario_actual["id_usuario"],
+                url_imagen=url_imagen,
+                descripcion=descripcion,
+                etiquetas=[etiqueta.strip() for etiqueta in etiquetas])
+
             elif opcion == '4':  # Cerrar sesión
                 print(f"Sesión cerrada. Adiós, {self.usuario_actual['nombre_usuario']}!")
                 self.usuario_actual = None
@@ -155,4 +167,4 @@ class InstagramApp:
 
 Instagram=InstagramApp()
 Instagram.run()
-
+#xd

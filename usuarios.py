@@ -91,3 +91,13 @@ class Usuario:
                 print(f"No se encontró un perfil con ID {id_usuario}.")
         except Exception as e:
             print(f"Error al eliminar el perfil con ID {id_usuario}:", e)
+    def seguir_usuario(self, id_usuario, id_usuario_seguido):
+        try:
+            cursor = self.conexion.cursor()
+            query = """INSERT INTO seguidores (id_seguidor, id_seguido)
+            VALUES (%s, %s)"""
+            cursor.execute(query,(id_usuario,id_usuario_seguido))
+            self.conexion.commit()
+            print("Usuario seguido exitosamente")
+        except Exception as e:
+            print(f"Error al seguir al usuario {id_usuario}:", e)

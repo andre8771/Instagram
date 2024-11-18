@@ -5,6 +5,7 @@ class InstagramApp:
     def __init__(self):
         self.connection = None
         self.usuario_actual = None  # Variable para guardar el usuario autenticado
+       
 
     def conectar_db(self):
         # Establecemos conexión con la BD
@@ -41,8 +42,14 @@ class InstagramApp:
         print("Opciones:")
         print("1. Ver perfiles")
         print("2. Editar perfil")
-        print("3. Cerrar sesión")
-
+        print("3. Hacer una publicación")
+        print("4. Cerrar sesión")
+        
+    def mostrar_menu_seguidores(self):
+        print("Desea seguir a alguien")
+        print("1.Si")
+        print("2.No, volver")
+        
     def iniciar_sesion(self):
         """Permite a un usuario iniciar sesión."""
         try:
@@ -55,7 +62,7 @@ class InstagramApp:
             resultado = cursor.fetchone()
 
             if resultado:
-                print(f"¡Bienvenido {resultado['nombre_usuario']}!")
+                
                 self.usuario_actual = resultado  # Guarda el usuario autenticado
                 return True
             else:
@@ -81,7 +88,18 @@ class InstagramApp:
             )
         except Exception as e:
             print("Error al crear la cuenta:", e)
-
+    def ejecutar_menu_seguidores(self):
+        while True:
+            self.mostrar_menu_seguidores()
+            opcion = input("Ingrese una opción: ")
+            if opcion == "1":
+                usuario=Usuario(self.connection)
+                usuario_seguido=input("ingrese el ID del usuario ")
+                usuario.seguir_usuario(self.usuario_actual["id_usuario"],usuario_seguido)
+            elif opcion == "2":
+                self.ejecutar_menu_usuario()
+                break
+    
     def ejecutar_menu_usuario(self):
         """Ejecuta el menú del usuario autenticado."""
         while True:
@@ -91,16 +109,20 @@ class InstagramApp:
             if opcion == '1':  # Ver perfiles
                 usuario = Usuario(self.connection)
                 usuario.ver_perfiles()
+                self.ejecutar_menu_seguidores()
+                break
             elif opcion == '2':  # Editar perfil
                 print("Función de edición de perfil no implementada todavía.")
-            elif opcion == '3':  # Cerrar sesión
+            elif opcion == '3':  #publicar
+                pass
+            elif opcion == '4':  # Cerrar sesión
                 print(f"Sesión cerrada. Adiós, {self.usuario_actual['nombre_usuario']}!")
                 self.usuario_actual = None
                 break
             else:
                 print("Opción no válida, intenta de nuevo.")
 
-    def ejecutar_opcion(self, opcion):
+    def ejecutar_opcion_de_menu_principal(self, opcion):
         """Ejecuta la opción seleccionada del menú principal."""
         if opcion == '1':  # Iniciar Sesión
             if self.iniciar_sesion():
@@ -125,7 +147,7 @@ class InstagramApp:
             else:
                 self.mostrar_menu_principal()
                 opcion = input("Elige una opción: ")
-                if not self.ejecutar_opcion(opcion):
+                if not self.ejecutar_opcion_de_menu_principal(opcion):
                     break
 
 Instagram=InstagramApp()

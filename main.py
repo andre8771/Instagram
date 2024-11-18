@@ -1,12 +1,12 @@
 import mysql.connector
 from mysql.connector import Error
 from usuarios import Usuario  # Importamos la clase Usuario
+from seguidores import Seguir
 class InstagramApp:
     def __init__(self):
         self.connection = None
         self.usuario_actual = None  # Variable para guardar el usuario autenticado
        
-
     def conectar_db(self):
         # Establecemos conexión con la BD
         try:
@@ -46,9 +46,10 @@ class InstagramApp:
         print("4. Cerrar sesión")
         
     def mostrar_menu_seguidores(self):
-        print("Desea seguir a alguien")
-        print("1.Si")
-        print("2.No, volver")
+        print("Menu seguidores")
+        print("1.Seguir a alguien")
+        print("2.Ver perfil")
+        print("3.Salir")
         
     def iniciar_sesion(self):
         """Permite a un usuario iniciar sesión."""
@@ -93,10 +94,12 @@ class InstagramApp:
             self.mostrar_menu_seguidores()
             opcion = input("Ingrese una opción: ")
             if opcion == "1":
-                usuario=Usuario(self.connection)
+                seguir=Seguir(self.connection)
                 usuario_seguido=input("ingrese el ID del usuario ")
-                usuario.seguir_usuario(self.usuario_actual["id_usuario"],usuario_seguido)
+                seguir.seguir_usuario(self.usuario_actual["id_usuario"],usuario_seguido)
             elif opcion == "2":
+                pass
+            elif opcion == "3":
                 self.ejecutar_menu_usuario()
                 break
     

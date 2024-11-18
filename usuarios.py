@@ -42,7 +42,7 @@ class Usuario:
             if perfiles:
                 print("\nLista de perfiles:")
                 for perfil in perfiles:
-                    print(f"ID: {perfil['id_usuario']}, Usuario: {perfil['nombre_usuario']}, "
+                    print(f"ID: {perfil['id_usuario']}, Usuario: {perfil['nombre_usuario']}, Foto de perfil:{perfil['url_imagen_perfil']}, "
                           f"Seguidores: {perfil['seguidores']}, Publicaciones: {perfil['publicaciones']}")
             else:
                 print("No se encontraron perfiles.")
@@ -91,13 +91,4 @@ class Usuario:
                 print(f"No se encontró un perfil con ID {id_usuario}.")
         except Exception as e:
             print(f"Error al eliminar el perfil con ID {id_usuario}:", e)
-    def seguir_usuario(self, id_usuario, id_usuario_seguido):
-        try:
-            cursor = self.conexion.cursor()
-            query = """INSERT INTO seguidores (id_seguidor, id_seguido)
-            VALUES (%s, %s)"""
-            cursor.execute(query,(id_usuario,id_usuario_seguido))
-            self.conexion.commit()
-            print("Usuario seguido exitosamente")
-        except Exception as e:
-            print(f"Error al seguir al usuario {id_usuario}:", e)
+   

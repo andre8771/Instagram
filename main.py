@@ -44,6 +44,7 @@ class InstagramApp:
         print("1. Ver perfiles")
         print("2. Editar perfil")
         print("3. Hacer una publicación")
+        #hacer una historia###########
         print("4. Cerrar sesión")
         
     def mostrar_menu_seguidores(self):
@@ -119,14 +120,17 @@ class InstagramApp:
                 usuario.ver_perfiles()
                 self.ejecutar_menu_seguidores()
                 break
-            elif opcion == '2':  # Editar perfil
+            elif opcion == '2':  # Editar perfil 
                 while True:
                     print("\n--- Editar Perfil ---")
                     print("1. Editar información del perfil")
+                    #eliminar perfil #######
                     print("2. Editar una publicación")
                     print("3. Eliminar una publicación")
+                    #editar historia ########
+                    #eliminar historia ########
                     print("4. Regresar al menú anterior")
-
+                    
                     subopcion = input("Elige una opción: ")
 
                     if subopcion == '1':  # Editar información del perfil

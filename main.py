@@ -90,6 +90,7 @@ class InstagramApp:
             )
         except Exception as e:
             print("Error al crear la cuenta:", e)
+
     def ejecutar_menu_seguidores(self):
         while True:
             self.mostrar_menu_seguidores()
@@ -98,8 +99,11 @@ class InstagramApp:
                 seguir=Seguir(self.connection)
                 usuario_seguido=input("ingrese el ID del usuario ")
                 seguir.seguir_usuario(self.usuario_actual["id_usuario"],usuario_seguido)
+            # opcion para VER PERFIL especifico--
             elif opcion == "2":
-                pass
+                 id_perfil = input("Ingrese el ID del perfil que desea ver: ")
+                 publicaciones = Publicaciones(self.connection)
+                 publicaciones.ver_publicaciones(id_usuario=id_perfil)
             elif opcion == "3":
                 self.ejecutar_menu_usuario()
                 break
@@ -116,20 +120,70 @@ class InstagramApp:
                 self.ejecutar_menu_seguidores()
                 break
             elif opcion == '2':  # Editar perfil
-                print("Función de edición de perfil no implementada todavía.")
+                while True:
+                    print("\n--- Editar Perfil ---")
+                    print("1. Editar información del perfil")
+                    print("2. Editar una publicación")
+                    print("3. Eliminar una publicación")
+                    print("4. Regresar al menú anterior")
+
+                    subopcion = input("Elige una opción: ")
+
+                    if subopcion == '1':  # Editar información del perfil
+                         nuevo_nombre_usuario = input("Ingrese el nuevo nombre de usuario (opcional): ").strip()
+                         nueva_foto_perfil = input("Ingrese la URL de la nueva foto de perfil (opcional): ").strip()
+                         nueva_biografia = input("Ingrese la nueva biografía (opcional): ").strip()
+
+                         usuario = Usuario(self.connection)
+                         usuario.actualizar_perfil(
+                             id_usuario=self.usuario_actual["id_usuario"],
+                             nuevo_nombre_usuario=nuevo_nombre_usuario if nuevo_nombre_usuario else None,
+                             nueva_foto_perfil=nueva_foto_perfil if nueva_foto_perfil else None,
+                             nueva_biografia=nueva_biografia if nueva_biografia else None
+                         )
+                    elif subopcion == '2':  # Editar una publicación
+                         print("\n--- Editar Publicación ---")
+                         id_publicacion = input("Ingrese el ID de la publicación que desea actualizar: ")
+                         nuevo_contenidos = input("Ingrese el nuevo contenido (descripción): ")
+                         nuevos_hashtags = input("Ingrese los nuevos hashtags (separados por comas, opcional): ").strip()
+
+                         publicaciones = Publicaciones(self.connection)
+                         publicaciones.actualizar_publicacion(
+                             id_publicacion=id_publicacion,
+                             nuevo_contenidos=nuevo_contenidos,
+                             nuevo_hashtags=nuevos_hashtags if nuevos_hashtags else None
+                        )
+                        
+                    elif subopcion == '3':  # Eliminar una publicación
+                        try:
+                              print("\n--- Eliminar Publicación ---")
+                              id_publicacion = input("Ingrese el ID de la publicación que desea eliminar: ")
+
+                              publicaciones = Publicaciones(self.connection)
+                              publicaciones.eliminar_publicacion(id_publicacion)
+                        except Exception as e:
+                              print(f"Error inesperado al intentar eliminar la publicación: {e}")
+
+                    elif subopcion == '4':  # Regresar al menú anterior
+                         break
+                    else:
+                         print("Opción no válida, intenta de nuevo.")
+    
+            #Opcion 3 :publicaciones.
             elif opcion == '3':  # Hacer una publicación
                 print("\n--- Crear Publicación ---")
                 url_imagen = input("URL de la imagen (opcional): ")
                 descripcion = input("Descripción: ")
-                etiquetas = input("Etiquetas (separadas por comas): ").split(',')
+                hashtags = input("Hashtags (separados por comas): ")
 
+            # Convertir hashtags a texto y enviarlos a la función
                 publicaciones = Publicaciones(self.connection)
                 publicaciones.hacer_publicacion(
-                id_usuario=self.usuario_actual["id_usuario"],
-                url_imagen=url_imagen,
-                descripcion=descripcion,
-                etiquetas=[etiqueta.strip() for etiqueta in etiquetas])
-
+                    id_usuario=self.usuario_actual["id_usuario"],
+                    url_imagen=url_imagen,
+                    descripcion=descripcion,
+                    hashtags=hashtags.strip()  #pasamos directamente los hashtags como texto
+            )
             elif opcion == '4':  # Cerrar sesión
                 print(f"Sesión cerrada. Adiós, {self.usuario_actual['nombre_usuario']}!")
                 self.usuario_actual = None

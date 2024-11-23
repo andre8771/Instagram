@@ -26,7 +26,7 @@ class Usuario:
                 nombre_usuario, 
                 url_imagen_perfil,
                 (SELECT COUNT(*) FROM seguidores WHERE id_seguido = usuarios.id_usuario) AS seguidores,
-                (SELECT COUNT(*) FROM publicaciones WHERE id_usuario = usuarios.id_usuario) AS publicaciones
+                (SELECT COUNT(*) FROM publicaciones WHERE id_usuario = usuarios.id_usuario) AS publicaciones 
             FROM usuarios
             """
             if filtro_nombre:

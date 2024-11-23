@@ -3,6 +3,8 @@ from mysql.connector import Error
 from usuarios import Usuario  # Importamos la clase Usuario
 from seguidores import Seguir
 from publicaciones import Publicaciones
+from historias import Historias  # Importamos la clase Historias
+
 class InstagramApp:
     def __init__(self):
         self.connection = None
@@ -44,14 +46,15 @@ class InstagramApp:
         print("1. Ver perfiles")
         print("2. Editar perfil")
         print("3. Hacer una publicación")
-        #hacer una historia###########
-        print("4. Cerrar sesión")
+        print("4. Crear historia")  # Nueva opción para crear historia
+        print("5. Cerrar sesión")
         
     def mostrar_menu_seguidores(self):
+        """Muestra el menú de seguidores."""
         print("Menu seguidores")
-        print("1.Seguir a alguien")
-        print("2.Ver perfil")
-        print("3.Salir")
+        print("1. Seguir a alguien")
+        print("2. Ver perfil")
+        print("3. Salir")
         
     def iniciar_sesion(self):
         """Permite a un usuario iniciar sesión."""
@@ -65,7 +68,6 @@ class InstagramApp:
             resultado = cursor.fetchone()
 
             if resultado:
-                
                 self.usuario_actual = resultado  # Guarda el usuario autenticado
                 return True
             else:
@@ -92,23 +94,50 @@ class InstagramApp:
         except Exception as e:
             print("Error al crear la cuenta:", e)
 
+    def ejecutar_menu_historia(self):
+        """Ejecuta el menú de Historias"""
+        historia_obj = Historias(self.connection)
+
+        while True:
+            print("\n--- Menú de Historias ---")
+            print("1. Ingresar datos para la historia")
+            print("2. Volver al menú anterior")
+            
+            opcion = input("Selecciona una opción: ")
+            
+            if opcion == "1":
+                # Crear historia
+                id_usuario = self.usuario_actual["id_usuario"]
+                imagen_video = input("URL de la imagen/video: ")
+                texto = input("Texto opcional: ")
+                duracion = int(input("Duración (en segundos, por defecto 15): ") or 15)
+                historia_obj.crear_historia(id_usuario, imagen_video, texto, duracion)
+
+            elif opcion == "2":
+                # Regresar al menú anterior
+                break
+
+            else:
+                print("Opción no válida, intenta de nuevo.")
+
     def ejecutar_menu_seguidores(self):
         while True:
             self.mostrar_menu_seguidores()
             opcion = input("Ingrese una opción: ")
             if opcion == "1":
-                seguir=Seguir(self.connection)
-                usuario_seguido=input("ingrese el ID del usuario ")
-                seguir.seguir_usuario(self.usuario_actual["id_usuario"],usuario_seguido)
-            # opcion para VER PERFIL especifico--
+                seguir = Seguir(self.connection)
+                usuario_seguido = input("Ingrese el ID del usuario a seguir: ")
+                seguir.seguir_usuario(self.usuario_actual["id_usuario"], usuario_seguido)
             elif opcion == "2":
-                 id_perfil = input("Ingrese el ID del perfil que desea ver: ")
-                 publicaciones = Publicaciones(self.connection)
-                 publicaciones.ver_publicaciones(id_usuario=id_perfil)
+                id_perfil = input("Ingrese el ID del perfil que desea ver: ")
+                publicaciones = Publicaciones(self.connection)
+                publicaciones.ver_publicaciones(id_usuario=id_perfil)
+                historias = Historias(self.connection)
+                historias.ver_historias(id_usuario=id_perfil)
             elif opcion == "3":
                 self.ejecutar_menu_usuario()
                 break
-    
+            
     def ejecutar_menu_usuario(self):
         """Ejecuta el menú del usuario autenticado."""
         while True:
@@ -120,31 +149,29 @@ class InstagramApp:
                 usuario.ver_perfiles()
                 self.ejecutar_menu_seguidores()
                 break
-            elif opcion == '2':  # Editar perfil 
+            elif opcion == '2':  # Editar perfil
                 while True:
                     print("\n--- Editar Perfil ---")
                     print("1. Editar información del perfil")
-                    #eliminar perfil #######
                     print("2. Editar una publicación")
                     print("3. Eliminar una publicación")
-                    #editar historia ########
-                    #eliminar historia ########
-                    print("4. Regresar al menú anterior")
-                    
+                    print("4. Eliminar historias")  # Nueva opción para eliminar historias
+                    print("5. Regresar al menú anterior")
+
                     subopcion = input("Elige una opción: ")
 
                     if subopcion == '1':  # Editar información del perfil
-                         nuevo_nombre_usuario = input("Ingrese el nuevo nombre de usuario (opcional): ").strip()
-                         nueva_foto_perfil = input("Ingrese la URL de la nueva foto de perfil (opcional): ").strip()
-                         nueva_biografia = input("Ingrese la nueva biografía (opcional): ").strip()
+                        nuevo_nombre_usuario = input("Ingrese el nuevo nombre de usuario (opcional): ").strip()
+                        nueva_foto_perfil = input("Ingrese la URL de la nueva foto de perfil (opcional): ").strip()
+                        nueva_biografia = input("Ingrese la nueva biografía (opcional): ").strip()
 
-                         usuario = Usuario(self.connection)
-                         usuario.actualizar_perfil(
-                             id_usuario=self.usuario_actual["id_usuario"],
-                             nuevo_nombre_usuario=nuevo_nombre_usuario if nuevo_nombre_usuario else None,
-                             nueva_foto_perfil=nueva_foto_perfil if nueva_foto_perfil else None,
-                             nueva_biografia=nueva_biografia if nueva_biografia else None
-                         )
+                        usuario = Usuario(self.connection)
+                        usuario.actualizar_perfil(
+                            id_usuario=self.usuario_actual["id_usuario"],
+                            nuevo_nombre_usuario=nuevo_nombre_usuario if nuevo_nombre_usuario else None,
+                            nueva_foto_perfil=nueva_foto_perfil if nueva_foto_perfil else None,
+                            nueva_biografia=nueva_biografia if nueva_biografia else None
+                        )
                     elif subopcion == '2':  # Editar una publicación
                          print("\n--- Editar Publicación ---")
                          id_publicacion = input("Ingrese el ID de la publicación que desea actualizar: ")
@@ -168,32 +195,37 @@ class InstagramApp:
                         except Exception as e:
                               print(f"Error inesperado al intentar eliminar la publicación: {e}")
 
-                    elif subopcion == '4':  # Regresar al menú anterior
-                         break
+                    elif subopcion == '4':  # Eliminar historias
+                        historia_obj = Historias(self.connection)
+                        id_historia = int(input("ID de la historia a eliminar: "))
+                        historia_obj.eliminar_historia(id_historia)
+                    elif subopcion == '5':  # Regresar al menú anterior
+                        break
                     else:
-                         print("Opción no válida, intenta de nuevo.")
-    
-            #Opcion 3 :publicaciones.
+                        print("Opción no válida, intenta de nuevo.")
+
             elif opcion == '3':  # Hacer una publicación
                 print("\n--- Crear Publicación ---")
                 url_imagen = input("URL de la imagen (opcional): ")
                 descripcion = input("Descripción: ")
                 hashtags = input("Hashtags (separados por comas): ")
-
-            # Convertir hashtags a texto y enviarlos a la función
+                
                 publicaciones = Publicaciones(self.connection)
                 publicaciones.hacer_publicacion(
                     id_usuario=self.usuario_actual["id_usuario"],
                     url_imagen=url_imagen,
                     descripcion=descripcion,
-                    hashtags=hashtags.strip()  #pasamos directamente los hashtags como texto
-            )
-            elif opcion == '4':  # Cerrar sesión
+                    hashtags=hashtags.strip()  
+                )
+            elif opcion == '4':  # Crear historia
+                self.ejecutar_menu_historia()  # Llamar al menú de historias
+            elif opcion == '5':  # cerrar sesión
                 print(f"Sesión cerrada. Adiós, {self.usuario_actual['nombre_usuario']}!")
                 self.usuario_actual = None
                 break
             else:
                 print("Opción no válida, intenta de nuevo.")
+
 
     def ejecutar_opcion_de_menu_principal(self, opcion):
         """Ejecuta la opción seleccionada del menú principal."""
@@ -222,7 +254,5 @@ class InstagramApp:
                 opcion = input("Elige una opción: ")
                 if not self.ejecutar_opcion_de_menu_principal(opcion):
                     break
-
-Instagram=InstagramApp()
+Instagram = InstagramApp()
 Instagram.run()
-#xd

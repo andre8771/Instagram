@@ -26,7 +26,8 @@ class Usuario:
                 nombre_usuario, 
                 url_imagen_perfil,
                 (SELECT COUNT(*) FROM seguidores WHERE id_seguido = usuarios.id_usuario) AS seguidores,
-                (SELECT COUNT(*) FROM publicaciones WHERE id_usuario = usuarios.id_usuario) AS publicaciones 
+                (SELECT COUNT(*) FROM publicaciones WHERE id_usuario = usuarios.id_usuario) AS publicaciones,
+                (SELECT COUNT(*) FROM historias WHERE id_usuario = usuarios.id_usuario) AS historias
             FROM usuarios
             """
             if filtro_nombre:
@@ -42,8 +43,8 @@ class Usuario:
             if perfiles:
                 print("\nLista de perfiles:")
                 for perfil in perfiles:
-                    print(f"ID: {perfil['id_usuario']}, Usuario: {perfil['nombre_usuario']}, Foto de perfil:{perfil['url_imagen_perfil']}, "
-                          f"Seguidores: {perfil['seguidores']}, Publicaciones: {perfil['publicaciones']}")
+                    print(f"ID: {perfil['id_usuario']}, Usuario: {perfil['nombre_usuario']}, Foto de perfil: {perfil['url_imagen_perfil']}, "
+                          f"Seguidores: {perfil['seguidores']}, Publicaciones: {perfil['publicaciones']}, Historias: {perfil['historias']}")
             else:
                 print("No se encontraron perfiles.")
         except Exception as e:
@@ -91,4 +92,3 @@ class Usuario:
                 print(f"No se encontró un perfil con ID {id_usuario}.")
         except Exception as e:
             print(f"Error al eliminar el perfil con ID {id_usuario}:", e)
-   
